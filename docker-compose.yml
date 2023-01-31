@@ -1,0 +1,18 @@
+
+version: '3.7'
+services:
+  postgres-cont:
+    image: postgres:15 
+    ports: 
+      - 5432:5432 
+    environment: 
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: indirim815
+      POSTGRES_DB: lecturesServer
+  pg-admin:
+    image: dpage/pgadmin4:6
+    environment:
+      - PGADMIN_DEFAULT_PASSWORD=citakilkay@gmail.com
+      - PGADMIN_DEFAULT_PORT=5050 
+    ports:
+      - "5050:5050"
