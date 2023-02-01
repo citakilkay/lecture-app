@@ -5,11 +5,11 @@ export abstract class EntityBase {
     id: string
 
     @CreateDateColumn({ nullable: false })
-    createdAt!: Date
+    createdAt: Date
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ name: 'created_at' })
     updatedAt?: Date
 
-    @DeleteDateColumn()
+    @DeleteDateColumn({ name: 'updated_at', type: 'timestamp' })
     deletedAt?: Date;
 }

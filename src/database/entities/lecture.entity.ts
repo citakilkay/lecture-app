@@ -7,20 +7,20 @@ import { User } from "./user.entity";
 @Entity()
 export class Lecture extends EntityBase {
     @Column({ nullable: false })
-    name!: string;
+    name: string;
 
     @Column({ nullable: false })
-    eventDate!: Date;
+    eventDate: Date;
 
     @Column({ default: LectureStatus.OPEN })
     status: LectureStatus;
 
     @ManyToOne(_type => Franchisee, franchisee => franchisee.lectures, { nullable: false })
-    franchisee!: Franchisee;
+    franchisee: Franchisee;
 
-    @ManyToMany(_type => User, user => user.lecturesForTeach, { nullable: false })
+    @ManyToOne(_type => User, user => user.lecturesForTeach, { nullable: false })
     @JoinTable()
-    lecturer!: User;
+    lecturer: User;
 
     @ManyToMany(_type => User, student => student.lecturesForStudy)
     @JoinTable()

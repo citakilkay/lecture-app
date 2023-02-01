@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany } from "typeorm"
 import { EntityBase } from "./common/base.entity"
-import { Lecture } from "./lecture.entity";
-import { User } from "./user.entity";
+import { Lecture } from "./lecture.entity"
+import { User } from "./user.entity"
 
 @Entity()
 export class Franchisee extends EntityBase {
@@ -11,6 +11,9 @@ export class Franchisee extends EntityBase {
     @Column({ default: true })
     isActive: boolean;
 
+    @Column()
+    credit: number
+
     @OneToMany(_type => User, user => user.studentFranchisee)
     students: User[] = []
 
@@ -19,7 +22,4 @@ export class Franchisee extends EntityBase {
 
     @OneToMany(_type => Lecture, lecture => lecture.franchisee, { cascade: ['soft-remove'] })
     lectures: Lecture[] = [] // If a franchisee will be softremoved, then the lectures that related with the franchisee also will be softremoved
-
-    @Column({ default: 0 })
-    credit: number
 }

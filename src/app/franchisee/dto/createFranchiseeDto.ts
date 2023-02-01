@@ -1,5 +1,6 @@
+
 export class CreateFranchiseeDto {
-    name!: string;
+    name: string;
     credit: number;
     isActive: boolean;
 }
