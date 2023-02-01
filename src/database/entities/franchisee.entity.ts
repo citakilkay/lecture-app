@@ -17,8 +17,8 @@ export class Franchisee extends EntityBase {
     @OneToMany(_type => User, user => user.lecturerFranchisee)
     lecturers: User[] = []
 
-    @OneToMany(_type => Lecture, lecture => lecture.Franchisee)
-    lectures: Lecture[] = []
+    @OneToMany(_type => Lecture, lecture => lecture.franchisee, { cascade: ['soft-remove'] })
+    lectures: Lecture[] = [] // If a franchisee will be softremoved, then the lectures that related with the franchisee also will be softremoved
 
     @Column({ default: 0 })
     credit: number
