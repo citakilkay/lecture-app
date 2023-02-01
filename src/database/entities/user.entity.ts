@@ -1,6 +1,7 @@
 import { Role } from "src/shared/enum/role.enum";
-import { Column, Entity, OneToMany } from "typeorm";
+import { BeforeInsert, Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { EntityBase } from "./common/base.entity";
+import { Franchisee } from "./franchisee.entity";
 import { Lecture } from "./lecture.entity";
 
 @Entity()
@@ -18,10 +19,21 @@ export class User extends EntityBase {
     isActive: boolean;
 
     @Column()
-    Role: Role;
+    role: Role;
 
     @OneToMany(_type => Lecture, lecture => lecture.lecturer)
-    lectures: Lecture[];
-    //Role
-    //Francise
+    lectures: Lecture[] = [];
+
+    @ManyToOne(_type => Franchisee, franchise => franchise.lecturers)
+    lecturerFranchisee?: Franchisee;
+
+    @ManyToOne(_type => Franchisee, franchise => franchise.students)
+    studentFranchisee?: Franchisee;
+
+    @BeforeInsert()
+    validateFranchisee() {
+        if (!this.lecturerFranchisee || !this.studentFranchisee || this.role != Role.SuperAdmin) {
+            throw new Error('User must have a franchisee');
+        }
+    }
 }
