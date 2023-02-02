@@ -7,9 +7,9 @@ export abstract class EntityBase {
     @CreateDateColumn({ nullable: false })
     createdAt: Date
 
-    @UpdateDateColumn({ name: 'created_at' })
+    @UpdateDateColumn()
     updatedAt?: Date
 
-    @DeleteDateColumn({ name: 'updated_at', type: 'timestamp' })
+    @DeleteDateColumn()
     deletedAt?: Date;
 }

@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Franchisee } from "src/database/entities/franchisee.entity";
 import { Lecture } from "src/database/entities/lecture.entity";
 import { User } from "src/database/entities/user.entity";
-import { Like, Repository } from "typeorm";
+import { In, Like, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/createUserDto";
 import { FilterUserDto } from "./dto/filterUserDto";
 import { UpdateUserDto } from "./dto/updateUserDto";
@@ -14,7 +14,7 @@ export class UserService {
         @InjectRepository(User)
         private userRepository: Repository<User>,
         @InjectRepository(Franchisee)
-        private franchiseeRepository: Repository<Franchisee>
+        private franchiseeRepository: Repository<Franchisee>,
         @InjectRepository(Lecture)
         private lectureRepository: Repository<Lecture>
     ) { }
@@ -60,22 +60,38 @@ export class UserService {
     }
 
     async update(updateUserDto: UpdateUserDto): Promise<User> {
-        const { username, isActive, emailAddress, password, roles, lecturerFranchiseeId, studentFranchiseeId } = updateUserDto;
-        const userWillbeUpdated = await this.userRepository.findOne({ where: { id: updateUserDto.id } });
-        userWillbeUpdated.username = username;
-        userWillbeUpdated.password = password;
-        userWillbeUpdated.emailAddress = emailAddress;
-        userWillbeUpdated.isActive = isActive;
-        userWillbeUpdated.roles = roles;
-        const lecturerFranchisee = this.franchiseeRepository.findOne({ where: { id: lecturerFranchiseeId } });
-        const studentFranchisee = this.franchiseeRepository.findOne({ where: { id: studentFranchiseeId } });
-        const lecturesForTeach = this.lectureRepository.find({});
+        const { id, username, isActive, emailAddress, password, roles, lecturerFranchiseeId, studentFranchiseeId, lecturesForTeachIds, lecturesForStudyIds } = updateUserDto;
+        const userToUpdate = await this.userRepository.findOne({ where: { id } });
 
-        userWillbeUpdated.lecturerFranchisee
-        userWillbeUpdated.studentFranchisee
-        userWillbeUpdated.lecturesForStudy
-        userWillbeUpdated.lecturesForTeach
-        userWillbeUpdated.
-            return;
+        if (!userToUpdate) {
+            throw new NotFoundException(`User with id ${id} not found`);
+        }
+
+        const lecturerFranchisee = await this.franchiseeRepository.findOne({ where: { id: lecturerFranchiseeId } });
+        const studentFranchisee = await this.franchiseeRepository.findOne({ where: { id: studentFranchiseeId } });
+        const lecturesForTeach = await this.lectureRepository.find({ where: { id: In(lecturesForTeachIds) } });
+        const lecturesForStudy = await this.lectureRepository.find({ where: { id: In(lecturesForStudyIds) } });
+
+        userToUpdate.username = username;
+        userToUpdate.password = password;
+        userToUpdate.emailAddress = emailAddress;
+        userToUpdate.isActive = isActive;
+        userToUpdate.roles = roles;
+        userToUpdate.lecturerFranchisee = lecturerFranchisee;
+        userToUpdate.studentFranchisee = studentFranchisee;
+        userToUpdate.lecturesForStudy = lecturesForStudy
+        userToUpdate.lecturesForTeach = lecturesForTeach
+
+        await this.userRepository.save(userToUpdate)
+        return userToUpdate;
+    }
+
+    async delete(id: string): Promise<User> {
+
+        const deleteToUser = await this.userRepository.findOne({ where: { id } })
+        if (!deleteToUser) {
+            throw new NotFoundException(`User with id ${id} not found`);
+        }
+        return await this.userRepository.softRemove(deleteToUser)
     }
 }
