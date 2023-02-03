@@ -3,8 +3,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Lecture } from "src/database/entities/lecture.entity";
 import { Franchisee } from "src/database/entities/franchisee.entity";
 import { User } from "src/database/entities/user.entity";
-import { Repository } from "typeorm";
-import { FilterFranchiseeDto } from "./dto/filterFranchiseeDto";
+import { In, Like, Repository } from "typeorm";
+import { FilterFranchiseeDto } from "./dto/filter-franchisee.dto";
+import { isNumber } from "class-validator";
+import { UpdateFranchiseeDto } from "./dto/update-franchisee.dto";
+import { CreateFranchiseeDto } from "./dto/create-franchisee.dto";
 
 @Injectable({})
 export class FranchiseeService {
@@ -17,8 +20,20 @@ export class FranchiseeService {
         private userRepository: Repository<User>
     ) { }
 
-    async getAll(filterDto: FilterFranchiseeDto): Promise<Franchisee> {
-        return;
+    async getAll(filterDto: FilterFranchiseeDto): Promise<[Franchisee[], number]> {
+        const { isActive, search, page, pageSize } = filterDto
+        const skip = (page - 1) * pageSize;
+        const franchisees = await this.franchiseeRepository.find({
+            where: [
+                isActive !== undefined ? { isActive } : {},
+                search != '' ? { name: Like(`%${search}%`) } : {},
+                search != '' && isNumber(search) ? { credit: Like(parseInt(search)) } : {}
+            ],
+            take: pageSize, skip
+        })
+
+        const total = franchisees.length;
+        return [franchisees, total];
     }
 
     async get(id: string): Promise<Franchisee> {
@@ -29,12 +44,34 @@ export class FranchiseeService {
         throw new NotFoundException(`Franchisee with ID ${id} is not found`);
     }
 
-    async create(createFranchiseeDto): Promise<Franchisee> {
-        return
+    async create(createFranchiseeDto: CreateFranchiseeDto): Promise<Franchisee> {
+        const { name, isActive, credit } = createFranchiseeDto
+        const newFranchisee = new Franchisee()
+        newFranchisee.name = name
+        newFranchisee.isActive = isActive
+        newFranchisee.credit = credit
+        return await this.franchiseeRepository.save(newFranchisee)
     }
 
-    async update(): Promise<Franchisee> {
-        return;
+    async update(updateFranchiseeDto: UpdateFranchiseeDto): Promise<Franchisee> {
+        const { id, name, isActive, credit, studentIds, lectureIds, lecturerIds } = updateFranchiseeDto;
+        const updateToFranchisee = await this.franchiseeRepository.findOne({ where: { id } })
+        if (!updateToFranchisee) {
+            throw new NotFoundException(`Franchisee with id ${id} not found`);
+        }
+        const lectures = await this.lectureRepository.find({ where: { id: In(lectureIds) } })
+        const lecturers = await this.userRepository.find({ where: { id: In(lecturerIds) } })
+        const students = await this.userRepository.find({ where: { id: In(studentIds) } })
+
+        updateToFranchisee.name = name
+        updateToFranchisee.isActive = isActive
+        updateToFranchisee.students = students
+        updateToFranchisee.lectures = lectures
+        updateToFranchisee.credit = credit
+        updateToFranchisee.lecturers = lecturers
+
+        await this.franchiseeRepository.save(updateToFranchisee)
+        return updateToFranchisee;
     }
 
     async delete(id: string): Promise<Franchisee> {

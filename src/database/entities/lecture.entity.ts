@@ -13,7 +13,7 @@ export class Lecture extends EntityBase {
     eventDate: Date;
 
     @Column({ default: LectureStatus.OPEN })
-    status: LectureStatus;
+    status: LectureStatus = LectureStatus.OPEN;
 
     @ManyToOne(_type => Franchisee, franchisee => franchisee.lectures, { nullable: false })
     franchisee: Franchisee;
@@ -25,5 +25,4 @@ export class Lecture extends EntityBase {
     @ManyToMany(_type => User, student => student.lecturesForStudy)
     @JoinTable()
     students: User[] = [];
-
 }

@@ -7,5 +7,5 @@ export class UpdateLectureDto {
     status: LectureStatus;
     franchiseeId: string;
     lecturerId: string;
-    studentsId: string[];
+    studentIds: string[];
 }

@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Contains } from "class-validator";
 import { Franchisee } from "src/database/entities/franchisee.entity";
 import { Lecture } from "src/database/entities/lecture.entity";
 import { User } from "src/database/entities/user.entity";
 import { In, Like, Repository } from "typeorm";
-import { CreateUserDto } from "./dto/createUserDto";
-import { FilterUserDto } from "./dto/filterUserDto";
-import { UpdateUserDto } from "./dto/updateUserDto";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { FilterUserDto } from "./dto/filter-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Injectable({})
 export class UserService {
@@ -19,15 +20,14 @@ export class UserService {
         private lectureRepository: Repository<Lecture>
     ) { }
     async getAll(filterDto: FilterUserDto): Promise<[User[], number]> {
-        const { isActive, search, page, pageSize } = filterDto
+        const { isActive, search, page, pageSize, roles } = filterDto
         const skip = (page - 1) * pageSize;
         const users = await this.userRepository.find({
             where: [
                 isActive !== undefined ? { isActive: isActive } : {},
-                {
-                    username: search !== '' ? Like(`%${search}%`) : undefined,
-                    emailAddress: search !== '' ? Like(`%${search}%`) : undefined, // typecheck required because (null == false) returns true
-                }],
+                roles.length ? { roles: In(roles) } : {},
+                search != '' ? { username: Like(`%${search}%`) } : {},
+                search != '' ? { emailAddress: Like(`%${search}%`) } : {}],
             take: pageSize, skip
         })
 
