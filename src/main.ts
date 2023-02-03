@@ -9,10 +9,10 @@ async function bootstrap() {
     .setTitle('Lecture App API')
     .setDescription('It contains superadmin, admin(one admin for every franchisee) student and lecturer roles.')
     .setVersion('1.0')
-    .addTag('company')
+    .addTag('franchisee')
     .addTag('user')
     .addTag('lecture')
-    // .addBearerAuth()
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

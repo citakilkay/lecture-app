@@ -18,8 +18,13 @@ export class User extends EntityBase {
     @Column({ default: true })
     isActive: boolean;
 
-    @Column()
-    roles: Role[] = [];
+    @Column({
+        type: "enum",
+        enum: Role,
+        array: true,
+        default: []
+    })
+    roles: Role[]
 
     @ManyToOne(_type => Franchisee, franchise => franchise.lecturers)
     lecturerFranchisee?: Franchisee; // If user is a lecturer, this will contain the related franchisee
@@ -28,11 +33,11 @@ export class User extends EntityBase {
     studentFranchisee?: Franchisee; // If user is a student, this column will contain the related franchisee -- one user can be student and lecturer at the sametime
 
     @OneToMany(_type => Lecture, lecture => lecture.lecturer, { cascade: ['soft-remove'] })
-    lecturesForTeach: Lecture[] = []; // If Lecturer will be softremoved, then lecture also will be softremove.
+    lecturesForTeach: Lecture[]; // If Lecturer will be softremoved, then lecture also will be softremove.
 
     @ManyToMany(_type => Lecture, lecture => lecture.students)
     @JoinTable()
-    lecturesForStudy: Lecture[] = []
+    lecturesForStudy: Lecture[]
 
     @BeforeInsert()
     validateFranchisee() { // If user is superadmin then it doesn't need to related a franchisee

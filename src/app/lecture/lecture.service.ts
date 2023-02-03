@@ -29,7 +29,8 @@ export class LectureService {
                 status ? { status } : {},
                 search != '' ? { name: Like(`%${search}%`) } : {},
             ],
-            take: pageSize, skip
+            take: pageSize,
+            skip: skip ? skip : undefined
         })
 
         const total = lectures.length;

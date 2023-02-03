@@ -28,7 +28,8 @@ export class UserService {
                 roles.length ? { roles: In(roles) } : {},
                 search != '' ? { username: Like(`%${search}%`) } : {},
                 search != '' ? { emailAddress: Like(`%${search}%`) } : {}],
-            take: pageSize, skip
+            take: pageSize,
+            skip: skip ? skip : undefined
         })
 
         const total = users.length;
