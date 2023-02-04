@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Contains } from "class-validator";
 import { Franchisee } from "src/database/entities/franchisee.entity";
 import { Lecture } from "src/database/entities/lecture.entity";
 import { User } from "src/database/entities/user.entity";
@@ -22,6 +21,7 @@ export class UserService {
     async getAll(filterDto: FilterUserDto): Promise<[User[], number]> {
         const { isActive, search, page, pageSize, roles } = filterDto
         const skip = (page - 1) * pageSize;
+
         const users = await this.userRepository.find({
             where: [
                 isActive !== undefined ? { isActive: isActive } : {},

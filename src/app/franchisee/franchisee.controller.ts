@@ -14,7 +14,7 @@ export class FranchiseeController {
 
     @Get()
     @ApiOperation({ summary: 'GetAll Franchisee' })
-    @ApiResponse({ status: 200, type: Promise<[Franchisee[], number]> })
+    @ApiResponse({ status: 200, type: Franchisee })
     async getAll(
         @Query() filterFranchiseeDto: FilterFranchiseeDto
     ): Promise<[Franchisee[], number]> {
@@ -30,21 +30,21 @@ export class FranchiseeController {
 
     @Post()
     @ApiOperation({ summary: 'Create Franchisee' })
-    @ApiResponse({ status: 200, type: Promise<Franchisee> })
+    @ApiResponse({ status: 200, type: Franchisee })
     create(@Body() createFranchiseeDto: CreateFranchiseeDto): Promise<Franchisee> {
         return this.franchiseeService.create(createFranchiseeDto);
     }
 
     @Put()
     @ApiOperation({ summary: 'Update Franchisee' })
-    @ApiResponse({ status: 200, type: Promise<Franchisee> })
+    @ApiResponse({ status: 200, type: Franchisee })
     update(@Body() updateFranchiseeDto: UpdateFranchiseeDto): Promise<Franchisee> {
         return this.franchiseeService.update(updateFranchiseeDto)
     }
 
     @Delete('/:id')
     @ApiOperation({ summary: 'Delete Franchisee' })
-    @ApiResponse({ status: 200, type: Promise<Franchisee> })
+    @ApiResponse({ status: 200, type: Franchisee })
     async delete(@Param('id') id: string): Promise<Franchisee> {
         return await this.franchiseeService.delete(id)
     }
