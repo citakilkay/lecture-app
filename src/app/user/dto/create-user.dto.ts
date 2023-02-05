@@ -29,4 +29,7 @@ export class CreateUserDto {
 
     @ApiProperty({ required: false })
     studentFranchiseeId?: string;
+
+    @ApiProperty({ required: false })
+    adminFranchiseeId?: string;
 }

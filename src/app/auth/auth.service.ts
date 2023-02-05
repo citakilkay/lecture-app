@@ -39,9 +39,10 @@ export class AuthService {
         }
     }
     async signin(signinCredentials: SigninCredentials): Promise<{ accessToken: string }> {
-
-        const { usernameorEmailAddress, password, franchiseeId } = signinCredentials
+        
+        const { usernameorEmailAddress, password } = signinCredentials
         const user = await this.userRepository.findOne({ where: [{ username: usernameorEmailAddress }, { emailAddress: usernameorEmailAddress }] })
+        console.log(password, usernameorEmailAddress)
         if (!user || await bcrypt.compare(password, user.password)) {
             const payload: JwtPayload = { usernameorEmailAddress }
             const accessToken = await this.jwtService.signAsync(payload)

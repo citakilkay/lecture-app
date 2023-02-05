@@ -3,11 +3,12 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Lecture } from "src/database/entities/lecture.entity";
 import { Franchisee } from "src/database/entities/franchisee.entity";
 import { User } from "src/database/entities/user.entity";
-import { FindManyOptions, In, Like, Repository } from "typeorm";
+import { FindOptionsWhere, In, Like, Repository } from "typeorm";
 import { FilterFranchiseeDto } from "./dto/filter-franchisee.dto";
 import { isNumber } from "class-validator";
 import { UpdateFranchiseeDto } from "./dto/update-franchisee.dto";
 import { CreateFranchiseeDto } from "./dto/create-franchisee.dto";
+import { filter } from "rxjs";
 
 @Injectable({})
 export class FranchiseeService {
@@ -21,15 +22,21 @@ export class FranchiseeService {
     ) { }
 
     async getAll(filterDto: FilterFranchiseeDto): Promise<[Franchisee[], number]> {
-        const { isActive, search, page, pageSize } = filterDto
+        const { isActive, search = '', page = 1, pageSize } = filterDto
         const skip = (page - 1) * pageSize;
 
+        const customWhereOptions: FindOptionsWhere<Franchisee>[] = []
+        if (search) {
+            customWhereOptions.push({ name: Like(`%${search}%`) })
+            if (isNumber(search)) {
+                customWhereOptions.push({ credit: Like(parseInt(search)) })
+            }
+        }
+        if (isActive !== undefined) {
+            customWhereOptions.push({ isActive })
+        }
         const franchisees = await this.franchiseeRepository.find({
-            where: [
-                isActive !== undefined ? { isActive } : {},
-                search != '' ? { name: Like(`%${search}%`) } : {},
-                search != '' && isNumber(search) ? { credit: Like(parseInt(search)) } : {}
-            ],
+            where: customWhereOptions.length ? customWhereOptions : {},
             take: pageSize,
             skip: skip ? skip : undefined
         })

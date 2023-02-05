@@ -15,9 +15,6 @@ export class UpdateLectureDto {
     status: LectureStatus;
 
     @ApiProperty()
-    franchiseeId: string;
-
-    @ApiProperty()
     lecturerId: string;
 
     @ApiProperty({ isArray: true, default: [] })

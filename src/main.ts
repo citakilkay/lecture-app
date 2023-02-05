@@ -7,12 +7,17 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Lecture App API')
+    .setBasePath('api')
     .setDescription('It contains superadmin, admin(one admin for every franchisee) student and lecturer roles.')
     .setVersion('1.0')
+    .addTag('auth')
     .addTag('franchisee')
     .addTag('user')
     .addTag('lecture')
-    .addBearerAuth()
+    .addBearerAuth({
+      scheme: 'bearer', bearerFormat: 'JWT',
+      type: 'http', openIdConnectUrl: 'http://localhost:3000/api/auth/signin'
+    }, 'access-token')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -5,6 +5,4 @@ export class SigninCredentials {
     usernameorEmailAddress: string;
     @ApiProperty()
     password: string;
-    @ApiProperty({ required: false })
-    franchiseeId?: string;
 }

@@ -3,13 +3,10 @@ import { LectureStatus } from "src/shared/enum/lecture-status.enum"
 
 export class FilterLectureDto {
     @ApiProperty({ default: '', required: false })
-    search: string = ''
-
-    @ApiProperty({ required: false })
-    isActive?: boolean
+    search: string
 
     @ApiProperty({ required: false, default: 1 })
-    page: number = 1
+    page: number
 
     @ApiProperty({ required: false })
     pageSize?: number
