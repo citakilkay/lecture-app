@@ -70,9 +70,9 @@ export class LectureService {
         newLecture.name = name
         newLecture.eventDate = eventDate
 
-        if (!user.adminFranchisee) {
-            throw new HttpException("User must be an Admin", HttpStatus.UNAUTHORIZED);
-        }
+        // if (!user.adminFranchisee) {
+        //     throw new HttpException("User must be an Admin", HttpStatus.FORBIDDEN);
+        // }
         const lecturer = await this.userRepository.findOne({ where: { id: lecturerId } })
         newLecture.franchisee = user.adminFranchisee
         newLecture.lecturer = lecturer
@@ -86,11 +86,11 @@ export class LectureService {
             throw new HttpException(`Lecture with id ${id} not found`, HttpStatus.NOT_FOUND)
         }
         if (updateToLecture.status != LectureStatus.OPEN) {
-            throw new HttpException("Lecture has passed the update time", HttpStatus.UNPROCESSABLE_ENTITY)
+            throw new HttpException("Lecture has passed the update time", HttpStatus.NOT_ACCEPTABLE)
         }
-        if (!user.adminFranchisee) {
-            throw new HttpException("User must be an Admin", HttpStatus.UNAUTHORIZED);
-        }
+        // if (!user.adminFranchisee) {
+        //     throw new HttpException("User must be an Admin", HttpStatus.FORBIDDEN);
+        // }
 
         const lecturer = await this.userRepository.findOne({ where: { id: lecturerId } })
         const students = await this.userRepository.find({ where: { id: In(studentIds) } })
@@ -120,7 +120,7 @@ export class LectureService {
             await this.lectureRepository.save(lecture)
             return;
         }
-        throw new HttpException('User and Franchisee must must be active', HttpStatus.FORBIDDEN);
+        throw new HttpException('User and Franchisee must must be active', HttpStatus.NOT_ACCEPTABLE);
     }
 
     async abandon(id: string, user: User): Promise<void> {

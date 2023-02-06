@@ -68,16 +68,18 @@ export class UserService {
         newUser.isActive = isActive;
         newUser.emailAddress = emailAddress;
         newUser.password = password;
-        if (lecturerFranchiseeId) {
+        if (lecturerFranchiseeId && roles.includes(Role.Lecturer)) {
             const lecturerFranchisee = await this.franchiseeRepository.findOne({ where: { id: lecturerFranchiseeId } })
             newUser.lecturerFranchisee = lecturerFranchisee;
         }
-        if (studentFranchiseeId) {
+        if (studentFranchiseeId && roles.includes(Role.Student)) {
             const studentFranchisee = await this.franchiseeRepository.findOne({ where: { id: studentFranchiseeId } })
+            studentFranchisee.credit = studentFranchisee.credit - 1
+            await this.franchiseeRepository.save(studentFranchisee)
             newUser.studentFranchisee = studentFranchisee;
         }
-        if (adminFranchiseeId) {
-            const adminFranchisee = await this.franchiseeRepository.findOne({ where: { id: studentFranchiseeId } });
+        if (adminFranchiseeId && roles.includes(Role.Admin)) {
+            const adminFranchisee = await this.franchiseeRepository.findOne({ where: { id: adminFranchiseeId } });
             newUser.adminFranchisee = adminFranchisee;
         }
         newUser.roles = roles;
@@ -88,9 +90,11 @@ export class UserService {
             if (err.code === '23505') {
                 // duplicate username or emailaddress
                 throw new HttpException('Username or EmailAdress already exists', HttpStatus.CONFLICT);
-            } else {
-                throw new HttpException('Unknown Error', HttpStatus.INTERNAL_SERVER_ERROR);
             }
+            if (err.status) {
+                throw new HttpException(err.message, err.status);
+            }
+            throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -133,7 +137,7 @@ export class UserService {
                 // duplicate username or emailaddress
                 throw new HttpException('Username or EmailAdress already exists', HttpStatus.CONFLICT);
             } else {
-                throw new HttpException('Unknown Error', HttpStatus.INTERNAL_SERVER_ERROR);
+                //throw new HttpException('Unknown Error', HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
     }

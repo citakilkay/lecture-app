@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsOptional, Matches, MinLength } from "class-validator";
+import { IsEmail, IsOptional, IsUUID, Matches, MinLength } from "class-validator";
 import { Role } from "src/shared/enum/role.enum";
 
 export enum RoleForSignup { // Superadmin and admin cannot signup. It must be create or update by another user.
@@ -15,6 +15,7 @@ export class SignupCredentials {
     @ApiProperty({ enum: RoleForSignup })
     role: RoleForSignup;
 
+    @IsUUID()
     franchiseeId: string; // A superadmin cannot sign up. It must be create by another superadmin. So franchiseeId must have a value
 
     @ApiProperty({ required: false })

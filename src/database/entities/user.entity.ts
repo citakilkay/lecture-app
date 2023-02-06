@@ -25,7 +25,7 @@ export class User extends EntityBase {
         array: true,
         default: []
     })
-    roles: Role[]
+    roles: Role[] = []
 
     @OneToOne(() => Franchisee, { eager: true })
     @JoinColumn()
@@ -48,19 +48,23 @@ export class User extends EntityBase {
     @BeforeUpdate()
     validateFranchisee() { // If user is superadmin then it doesn't need to related a franchisee
         if (!this.lecturerFranchisee && !this.studentFranchisee && !this.roles.includes(Role.SuperAdmin)) {
-            throw new HttpException('User must relate a franchisee', HttpStatus.UNPROCESSABLE_ENTITY);
+            throw new HttpException('User must relate a franchisee', HttpStatus.BAD_REQUEST);
+        }
+        if ((this.roles.includes(Role.Admin) && !this.adminFranchisee) || (!this.roles.includes(Role.Admin) && this.adminFranchisee)) {
+            throw new HttpException('The admin requirements is not valid. ', HttpStatus.BAD_REQUEST)
+        }
+        if ((this.roles.includes(Role.Lecturer) && !this.lecturerFranchisee) || (!this.roles.includes(Role.Lecturer) && this.lecturerFranchisee)) {
+            throw new HttpException('The lecturer requirements is not valid. ', HttpStatus.BAD_REQUEST)
+        }
+        if ((this.roles.includes(Role.Student) && !this.studentFranchisee) || (!this.roles.includes(Role.Lecturer) && this.lecturerFranchisee)) {
+            throw new HttpException('The student requirements is not valid. ', HttpStatus.BAD_REQUEST)
         }
     }
+
+    @BeforeInsert()
+    @BeforeUpdate()
     validateRoleRequirements() {
-        if (this.roles.includes(Role.Admin) && !this.adminFranchisee) {
-            throw new HttpException('The adminFranchise field of a user whose role is Admin cannot be empty. ', HttpStatus.UNPROCESSABLE_ENTITY)
-        }
-        if (this.roles.includes(Role.Lecturer) && !this.lecturerFranchisee) {
-            throw new HttpException('The lecturerFranchisee field of a user whose role is Admin cannot be empty. ', HttpStatus.UNPROCESSABLE_ENTITY)
-        }
-        if (this.roles.includes(Role.Student) && !this.studentFranchisee) {
-            throw new HttpException('The studentFranchisee field of a user whose role is Admin cannot be empty. ', HttpStatus.UNPROCESSABLE_ENTITY)
-        }
+        console.log("sssdddd")
     }
 
 }

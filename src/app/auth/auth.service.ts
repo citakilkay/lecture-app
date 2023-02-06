@@ -7,17 +7,20 @@ import * as bcrypt from 'bcrypt';
 import { Role } from "src/shared/enum/role.enum";
 import { AccessTokenDto } from "./dto/access-token.dto";
 import { SigninCredentials } from "./dto/signin-credentials.dto";
-import { JwtService } from "@nestjs/jwt/dist";
+import { JwtService } from "@nestjs/jwt";
 import { JwtPayload } from "./jwt-payload.interface";
-@Injectable({})
+import { Franchisee } from "src/database/entities/franchisee.entity";
+@Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
+        @InjectRepository(Franchisee)
+        private franchiseeRepository: Repository<Franchisee>,
         private jwtService: JwtService) {
     }
     async signup(signupCredentials: SignupCredentials): Promise<void> {
-        const { username, password, emailAddress, role } = signupCredentials
+        const { username, password, emailAddress, role, franchiseeId } = signupCredentials
         const newUser = new User()
         newUser.username = username
         const salt = await bcrypt.genSalt();
@@ -25,7 +28,17 @@ export class AuthService {
         newUser.password = hashedPassword
         newUser.emailAddress = emailAddress
         newUser.roles.push(Role[RoleForSignup[role]])
-
+        const franchisee = await this.franchiseeRepository.findOne({ where: { id: franchiseeId } })
+        switch (true) {
+            case role == RoleForSignup.Student:
+                newUser.studentFranchisee = franchisee
+                break;
+            case role == RoleForSignup.Lecturer:
+                newUser.lecturerFranchisee = franchisee
+                break;
+            default:
+                break;
+        }
         try {
             await this.userRepository.save(newUser)
             return;
@@ -39,15 +52,13 @@ export class AuthService {
         }
     }
     async signin(signinCredentials: SigninCredentials): Promise<{ accessToken: string }> {
-
         const { usernameorEmailAddress, password } = signinCredentials
         const user = await this.userRepository.findOne({ where: [{ username: usernameorEmailAddress }, { emailAddress: usernameorEmailAddress }] })
-        console.log(password, usernameorEmailAddress)
-        if (!user || await bcrypt.compare(password, user.password)) {
-            const payload: JwtPayload = { usernameorEmailAddress }
-            const accessToken = await this.jwtService.signAsync(payload)
+        if (user && await bcrypt.compare(password, user.password)) {
+            const payload: JwtPayload = { usernameorEmailAddress, id: user.id }
+            const accessToken = this.jwtService.sign(payload)
             return { accessToken }
         }
-        throw new HttpException('Please check your login credentials', HttpStatus.FORBIDDEN);
+        throw new HttpException('Please check your login credentials', HttpStatus.UNAUTHORIZED);
     }
 }

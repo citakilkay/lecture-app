@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsOptional, Matches, MinLength } from "class-validator";
+import { IsEmail, IsOptional, IsUUID, Matches, MinLength } from "class-validator";
 import { Role } from "src/shared/enum/role.enum";
 
 export class CreateUserDto {
@@ -24,12 +24,15 @@ export class CreateUserDto {
     @ApiProperty({ default: [], isArray: true, enum: Role })
     roles: Role[] = [];
 
+    @IsUUID()
     @ApiProperty({ required: false })
     lecturerFranchiseeId?: string;
 
+    @IsUUID()
     @ApiProperty({ required: false })
     studentFranchiseeId?: string;
 
+    @IsUUID()
     @ApiProperty({ required: false })
     adminFranchiseeId?: string;
 }

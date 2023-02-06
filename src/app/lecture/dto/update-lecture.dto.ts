@@ -1,7 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsUUID } from "class-validator";
 import { LectureStatus } from "src/shared/enum/lecture-status.enum";
 
 export class UpdateLectureDto {
+    @IsUUID()
     @ApiProperty()
     id: string;
 
@@ -14,6 +16,7 @@ export class UpdateLectureDto {
     @ApiProperty({ enum: LectureStatus })
     status: LectureStatus;
 
+    @IsUUID()
     @ApiProperty()
     lecturerId: string;
 
