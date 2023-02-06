@@ -5,7 +5,7 @@
 $ npm install
 $ docker compose up postgres-cont
 $ npm run start:dev
-$ go to --> localhost:3000/api
+$ go to for SwaggerUI --> localhost:3000/api
 ```
 
 ## Entities
@@ -18,6 +18,7 @@ $ go to --> localhost:3000/api
  * PostgreSQL
  * Docker
  * TypeORM
+ * SwaggerUI
 
  ## Roles
  * SuperAdmin: Can create, update, delete users and franchisees
