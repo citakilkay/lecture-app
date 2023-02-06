@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Lecture } from "src/database/entities/lecture.entity";
 import { Franchisee } from "src/database/entities/franchisee.entity";
@@ -50,7 +50,7 @@ export class FranchiseeService {
         if (franchisee) {
             return franchisee;
         }
-        throw new NotFoundException(`Franchisee with ID ${id} is not found`);
+        throw new HttpException(`Franchisee with ID ${id} is not found`, HttpStatus.NOT_FOUND);
     }
 
     async create(createFranchiseeDto: CreateFranchiseeDto): Promise<Franchisee> {
@@ -66,7 +66,7 @@ export class FranchiseeService {
         const { id, name, isActive, credit, studentIds, lectureIds, lecturerIds } = updateFranchiseeDto;
         const updateToFranchisee = await this.franchiseeRepository.findOne({ where: { id } })
         if (!updateToFranchisee) {
-            throw new NotFoundException(`Franchisee with id ${id} not found`);
+            throw new HttpException(`Franchisee with ID ${id} is not found`, HttpStatus.NOT_FOUND);
         }
         const lectures = await this.lectureRepository.find({ where: { id: In(lectureIds) } })
         const lecturers = await this.userRepository.find({ where: { id: In(lecturerIds) } })
@@ -86,7 +86,7 @@ export class FranchiseeService {
     async delete(id: string): Promise<Franchisee> {
         const deleteToFranchisee = await this.franchiseeRepository.findOne({ where: { id } })
         if (!deleteToFranchisee) {
-            throw new NotFoundException(`Franchisee with id ${id} not found`);
+            throw new HttpException(`Franchisee with id ${id} not found`, HttpStatus.NOT_FOUND);
         }
         return await this.franchiseeRepository.softRemove(deleteToFranchisee)
     }

@@ -1,5 +1,5 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { BadRequestException } from "@nestjs/common/exceptions";
+import { ForbiddenException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, HttpException } from "@nestjs/common/exceptions";
 import { InjectRepository } from "@nestjs/typeorm";
 import { stat } from "fs";
 import { Franchisee } from "src/database/entities/franchisee.entity";
@@ -61,7 +61,7 @@ export class LectureService {
         if (lecture) {
             return lecture;
         }
-        throw new NotFoundException(`Lecture with ID ${id} is not found`);
+        throw new HttpException(`Lecture with ID ${id} is not found`, HttpStatus.NOT_FOUND);
     }
 
     async create(createLectureDto: CreateLectureDto, user: User): Promise<Lecture> {
@@ -71,7 +71,7 @@ export class LectureService {
         newLecture.eventDate = eventDate
 
         if (!user.adminFranchisee) {
-            throw new BadRequestException('User Must be admin')
+            throw new HttpException("User must be an Admin", HttpStatus.UNAUTHORIZED);
         }
         const lecturer = await this.userRepository.findOne({ where: { id: lecturerId } })
         newLecture.franchisee = user.adminFranchisee
@@ -83,13 +83,13 @@ export class LectureService {
         const { id, name, eventDate, status, lecturerId, studentIds } = updateLectureDto;
         const updateToLecture = await this.lectureRepository.findOne({ where: { id } })
         if (updateToLecture) {
-            throw new NotFoundException(`Lecture with id ${id} not found`)
+            throw new HttpException(`Lecture with id ${id} not found`, HttpStatus.NOT_FOUND)
         }
         if (updateToLecture.status != LectureStatus.OPEN) {
-            throw new ForbiddenException("Lecture has passed the update time")
+            throw new HttpException("Lecture has passed the update time", HttpStatus.UNPROCESSABLE_ENTITY)
         }
         if (!user.adminFranchisee) {
-            throw new BadRequestException('User must be admin')
+            throw new HttpException("User must be an Admin", HttpStatus.UNAUTHORIZED);
         }
 
         const lecturer = await this.userRepository.findOne({ where: { id: lecturerId } })
@@ -107,7 +107,7 @@ export class LectureService {
     async cancel(id: string): Promise<Lecture> {
         const cancelToLecture = await this.lectureRepository.findOne({ where: { id } })
         if (!cancelToLecture) {
-            throw new NotFoundException(`Lecture with id ${id} not found`);
+            throw new HttpException(`Lecture with ID ${id} is not found`, HttpStatus.NOT_FOUND);
         }
         cancelToLecture.status = LectureStatus.CANCELLED
         return await this.lectureRepository.save(cancelToLecture)
@@ -120,8 +120,7 @@ export class LectureService {
             await this.lectureRepository.save(lecture)
             return;
         }
-        throw new BadRequestException('User and Franchisee must must be active')
-
+        throw new HttpException('User and Franchisee must must be active', HttpStatus.FORBIDDEN);
     }
 
     async abandon(id: string, user: User): Promise<void> {
@@ -134,7 +133,7 @@ export class LectureService {
     async delete(id: string): Promise<Lecture> {
         const deleteToLecture = await this.lectureRepository.findOne({ where: { id } })
         if (!deleteToLecture) {
-            throw new NotFoundException(`Lecture with id ${id} not found`);
+            throw new HttpException(`Lecture with id ${id} not found`, HttpStatus.NOT_FOUND);
         }
         return await this.lectureRepository.softRemove(deleteToLecture)
     }

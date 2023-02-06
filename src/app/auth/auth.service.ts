@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from "@nestjs/common";
+import { ConflictException, HttpException, HttpStatus, Injectable, InternalServerErrorException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/database/entities/user.entity";
 import { Repository } from "typeorm";
@@ -32,14 +32,14 @@ export class AuthService {
         } catch (err) {
             if (err.code === '23505') {
                 // duplicate username or emailaddress
-                throw new ConflictException('Username or EmailAdress already exists');
+                throw new HttpException('Username or EmailAdress already exists', HttpStatus.CONFLICT);
             } else {
-                throw new InternalServerErrorException('Unknown Error');
+                throw new HttpException('Unknown Error', HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
     }
     async signin(signinCredentials: SigninCredentials): Promise<{ accessToken: string }> {
-        
+
         const { usernameorEmailAddress, password } = signinCredentials
         const user = await this.userRepository.findOne({ where: [{ username: usernameorEmailAddress }, { emailAddress: usernameorEmailAddress }] })
         console.log(password, usernameorEmailAddress)
@@ -48,6 +48,6 @@ export class AuthService {
             const accessToken = await this.jwtService.signAsync(payload)
             return { accessToken }
         }
-        throw new UnauthorizedException('Please check your login credentials');
+        throw new HttpException('Please check your login credentials', HttpStatus.FORBIDDEN);
     }
 }

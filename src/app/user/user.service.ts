@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Franchisee } from "src/database/entities/franchisee.entity";
 import { Lecture } from "src/database/entities/lecture.entity";
@@ -58,7 +58,7 @@ export class UserService {
         if (user) {
             return user;
         }
-        throw new NotFoundException(`User with ID ${id} is not found`);
+        throw new HttpException(`User with ID ${id} is not found`, HttpStatus.NOT_FOUND);
     }
 
     async create(createUserDto: CreateUserDto): Promise<User> {
@@ -82,7 +82,16 @@ export class UserService {
         }
         newUser.roles = roles;
 
-        return await this.userRepository.save(newUser);
+        try {
+            return await this.userRepository.save(newUser)
+        } catch (err) {
+            if (err.code === '23505') {
+                // duplicate username or emailaddress
+                throw new HttpException('Username or EmailAdress already exists', HttpStatus.CONFLICT);
+            } else {
+                throw new HttpException('Unknown Error', HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
     }
 
     async update(updateUserDto: UpdateUserDto): Promise<User> {
@@ -90,7 +99,7 @@ export class UserService {
         const userToUpdate = await this.userRepository.findOne({ where: { id } });
 
         if (!userToUpdate) {
-            throw new NotFoundException(`User with id ${id} not found`);
+            throw new HttpException(`User with id ${id} not found`, HttpStatus.NOT_FOUND);
         }
         if (lecturerFranchiseeId) {
             const lecturerFranchisee = await this.franchiseeRepository.findOne({ where: { id: lecturerFranchiseeId } });
@@ -117,14 +126,22 @@ export class UserService {
         userToUpdate.isActive = isActive;
         userToUpdate.roles = roles;
 
-        await this.userRepository.save(userToUpdate)
-        return userToUpdate;
+        try {
+            return await this.userRepository.save(userToUpdate)
+        } catch (err) {
+            if (err.code === '23505') {
+                // duplicate username or emailaddress
+                throw new HttpException('Username or EmailAdress already exists', HttpStatus.CONFLICT);
+            } else {
+                throw new HttpException('Unknown Error', HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
     }
 
     async delete(id: string): Promise<User> {
         const deleteToUser = await this.userRepository.findOne({ where: { id } })
         if (!deleteToUser) {
-            throw new NotFoundException(`User with id ${id} not found`);
+            throw new HttpException(`User with id ${id} not found`, HttpStatus.NOT_FOUND);
         }
         return await this.userRepository.softRemove(deleteToUser)
     }

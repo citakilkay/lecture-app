@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from "@nestjs/common";
 import { Role } from "src/shared/enum/role.enum";
 import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { EntityBase } from "./common/base.entity";
@@ -47,18 +48,18 @@ export class User extends EntityBase {
     @BeforeUpdate()
     validateFranchisee() { // If user is superadmin then it doesn't need to related a franchisee
         if (!this.lecturerFranchisee && !this.studentFranchisee && !this.roles.includes(Role.SuperAdmin)) {
-            throw new Error('User must relate a franchisee');
+            throw new HttpException('User must relate a franchisee', HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
     validateRoleRequirements() {
         if (this.roles.includes(Role.Admin) && !this.adminFranchisee) {
-            throw new Error('The adminFranchise field of a user whose role is Admin cannot be empty. ')
+            throw new HttpException('The adminFranchise field of a user whose role is Admin cannot be empty. ', HttpStatus.UNPROCESSABLE_ENTITY)
         }
         if (this.roles.includes(Role.Lecturer) && !this.lecturerFranchisee) {
-            throw new Error('The lecturerFranchisee field of a user whose role is Admin cannot be empty. ')
+            throw new HttpException('The lecturerFranchisee field of a user whose role is Admin cannot be empty. ', HttpStatus.UNPROCESSABLE_ENTITY)
         }
         if (this.roles.includes(Role.Student) && !this.studentFranchisee) {
-            throw new Error('The studentFranchisee field of a user whose role is Admin cannot be empty. ')
+            throw new HttpException('The studentFranchisee field of a user whose role is Admin cannot be empty. ', HttpStatus.UNPROCESSABLE_ENTITY)
         }
     }
 
