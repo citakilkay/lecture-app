@@ -5,6 +5,7 @@
 $ npm install
 $ docker compose up postgres-cont
 $ npm run start:dev
+$ localhost:3000/api
 ```
 
 ## Entities
