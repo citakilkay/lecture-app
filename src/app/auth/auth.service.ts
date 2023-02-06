@@ -45,7 +45,7 @@ export class AuthService {
         } catch (err) {
             if (err.code === '23505') {
                 // duplicate username or emailaddress
-                throw new HttpException('Username or EmailAdress already exists', HttpStatus.CONFLICT);
+                throw new HttpException('Conflict Error possible reasons: Username or EmailAdress already exists or Franchisee has already an admin', HttpStatus.CONFLICT);
             } else {
                 throw new HttpException('Unknown Error', HttpStatus.INTERNAL_SERVER_ERROR);
             }

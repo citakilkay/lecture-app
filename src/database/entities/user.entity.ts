@@ -47,7 +47,7 @@ export class User extends EntityBase {
     @BeforeInsert()
     @BeforeUpdate()
     validateFranchisee() { // If user is superadmin then it doesn't need to related a franchisee
-        if (!this.lecturerFranchisee && !this.studentFranchisee && !this.roles.includes(Role.SuperAdmin)) {
+        if (!this.lecturerFranchisee && !this.studentFranchisee && !this.adminFranchisee && !this.roles.includes(Role.SuperAdmin)) {
             throw new HttpException('User must relate a franchisee', HttpStatus.BAD_REQUEST);
         }
         if ((this.roles.includes(Role.Admin) && !this.adminFranchisee) || (!this.roles.includes(Role.Admin) && this.adminFranchisee)) {

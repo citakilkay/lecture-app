@@ -57,7 +57,7 @@ export class LectureService {
     }
 
     async get(id: string): Promise<Lecture> {
-        const lecture = await this.lectureRepository.findOne({ where: { id } })
+        const lecture = await this.lectureRepository.findOne({ where: { id }, relations: { students: true } })
         if (lecture) {
             return lecture;
         }
@@ -70,13 +70,16 @@ export class LectureService {
         newLecture.name = name
         newLecture.eventDate = eventDate
 
-        // if (!user.adminFranchisee) {
-        //     throw new HttpException("User must be an Admin", HttpStatus.FORBIDDEN);
-        // }
+        if (!user.adminFranchisee) {
+            throw new HttpException("User must be an Admin", HttpStatus.FORBIDDEN);
+        }
         const lecturer = await this.userRepository.findOne({ where: { id: lecturerId } })
-        newLecture.franchisee = user.adminFranchisee
-        newLecture.lecturer = lecturer
-        return await this.lectureRepository.save(newLecture)
+        console.log(lecturer, lecturerId)
+        if (lecturer && lecturer.roles.includes(Role.Lecturer)) {
+            newLecture.lecturer = lecturer
+            newLecture.franchisee = user.adminFranchisee
+            return await this.lectureRepository.save(newLecture)
+        } throw new HttpException('LecturerId is not related with a Lecturer User', HttpStatus.BAD_REQUEST)
     }
 
     async update(updateLectureDto: UpdateLectureDto, user: User): Promise<Lecture> {
@@ -86,22 +89,25 @@ export class LectureService {
             throw new HttpException(`Lecture with id ${id} not found`, HttpStatus.NOT_FOUND)
         }
         if (updateToLecture.status != LectureStatus.OPEN) {
-            throw new HttpException("Lecture has passed the update time", HttpStatus.NOT_ACCEPTABLE)
+            throw new HttpException("Lecture has passed the update time", HttpStatus.FORBIDDEN)
         }
-        // if (!user.adminFranchisee) {
-        //     throw new HttpException("User must be an Admin", HttpStatus.FORBIDDEN);
-        // }
-
-        const lecturer = await this.userRepository.findOne({ where: { id: lecturerId } })
+        if (!user.adminFranchisee) {
+            throw new HttpException("User must be an Admin", HttpStatus.FORBIDDEN);
+        }
+        const lecturer = await this.userRepository.findOne({ where: { id: lecturerId, roles: In([Role.Lecturer]) } })
         const students = await this.userRepository.find({ where: { id: In(studentIds) } })
-        updateToLecture.name = name
-        updateToLecture.eventDate = eventDate
-        updateToLecture.status = status
-        updateToLecture.franchisee = user.adminFranchisee
-        updateToLecture.lecturer = lecturer
-        updateToLecture.students = students
-        await this.lectureRepository.save(updateToLecture)
-        return updateToLecture;
+
+        if (lecturer && lecturer.roles.includes(Role.Lecturer)) {
+            updateToLecture.name = name
+            updateToLecture.eventDate = eventDate
+            updateToLecture.status = status
+            updateToLecture.franchisee = user.adminFranchisee
+            updateToLecture.lecturer = lecturer
+            updateToLecture.students = students
+            await this.lectureRepository.save(updateToLecture)
+            return updateToLecture;
+        } throw new HttpException('LecturerId is not related with a Lecturer User', HttpStatus.BAD_REQUEST)
+
     }
 
     async cancel(id: string): Promise<Lecture> {

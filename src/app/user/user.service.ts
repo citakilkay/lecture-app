@@ -8,6 +8,7 @@ import { FindOptionsWhere, In, Like, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { FilterUserDto } from "./dto/filter-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import * as bcrypt from 'bcrypt';
 
 @Injectable({})
 export class UserService {
@@ -46,6 +47,7 @@ export class UserService {
 
         const users = await this.userRepository.find({
             where: customWhereOptions.length ? customWhereOptions : {},
+            relations: { lecturesForTeach: true, lecturesForStudy: true },
             take: pageSize,
             skip: skip ? skip : undefined
         })
@@ -67,7 +69,9 @@ export class UserService {
         newUser.username = username;
         newUser.isActive = isActive;
         newUser.emailAddress = emailAddress;
-        newUser.password = password;
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
+        newUser.password = hashedPassword
         if (lecturerFranchiseeId && roles.includes(Role.Lecturer)) {
             const lecturerFranchisee = await this.franchiseeRepository.findOne({ where: { id: lecturerFranchiseeId } })
             newUser.lecturerFranchisee = lecturerFranchisee;

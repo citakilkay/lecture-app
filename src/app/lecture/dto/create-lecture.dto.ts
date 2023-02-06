@@ -9,6 +9,8 @@ export class CreateLectureDto {
     @ApiProperty()
     eventDate: Date;
 
+    
+
     @ApiProperty({ default: LectureStatus.OPEN })
     status: LectureStatus = LectureStatus.OPEN;
 

@@ -15,10 +15,10 @@ export class Lecture extends EntityBase {
     @Column({ type: 'enum', enum: LectureStatus, default: LectureStatus.OPEN })
     status: LectureStatus = LectureStatus.OPEN;
 
-    @ManyToOne(_type => Franchisee, franchisee => franchisee.lectures, { nullable: false })
+    @ManyToOne(_type => Franchisee, franchisee => franchisee.lectures, { nullable: false, eager: true })
     franchisee: Franchisee;
 
-    @ManyToOne(_type => User, user => user.lecturesForTeach, { nullable: false })
+    @ManyToOne(_type => User, user => user.lecturesForTeach, { nullable: false, eager: true })
     @JoinTable()
     lecturer: User;
 

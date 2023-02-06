@@ -46,7 +46,7 @@ export class FranchiseeService {
     }
 
     async get(id: string): Promise<Franchisee> {
-        const franchisee = await this.franchiseeRepository.findOne({ where: { id } })
+        const franchisee = await this.franchiseeRepository.findOne({ where: { id }, relations: { students: true, lecturers: true, lectures: true } })
         if (franchisee) {
             return franchisee;
         }
