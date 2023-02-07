@@ -69,6 +69,7 @@ export class LectureController {
     @UseGuards(RolesGuard)
     @Roles(Role.Student)
     async attend(@Param('id') id: string, @GetUser() user: User): Promise<void> {
+        console.log("ff")
         return await this.lectureService.attend(id, user);
     }
 

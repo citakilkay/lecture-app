@@ -10,8 +10,9 @@ $ docker compose up postgres-cont
 Terminal 2
 ```bash
 $ npm run start:dev
-$ go to for SwaggerUI --> localhost:3000/api
 ```
+ - go to for SwaggerUI --> localhost:3000/api
+ - you can login with this credentials username: 'superadmin' and password: '123qwe'
 
 ## Entities
  * Lecture
