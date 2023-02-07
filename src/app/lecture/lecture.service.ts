@@ -19,7 +19,7 @@ export class LectureService {
         private lectureRepository: Repository<Lecture>,
         @InjectRepository(Franchisee)
         private franchiseeRepository: Repository<Franchisee>,
-        @InjectRepository(Lecture)
+        @InjectRepository(User)
         private userRepository: Repository<User>
     ) { }
 

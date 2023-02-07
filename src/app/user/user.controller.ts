@@ -31,6 +31,8 @@ export class UserController {
     @Get('/:id')
     @ApiOperation({ summary: 'Get User' })
     @ApiResponse({ status: 200 })
+    @UseGuards(RolesGuard)
+    @Roles(Role.Admin, Role.SuperAdmin)
     get(@Param('id') id: string): Promise<User> {
         return this.userService.get(id);
     }
