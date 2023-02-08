@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
-import { Body, Delete, Patch, Post, Put, Req, UseGuards } from "@nestjs/common/decorators";
+import { Body, Delete, Patch, Post, Put, UseGuards } from "@nestjs/common/decorators";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Lecture } from "src/database/entities/lecture.entity";
@@ -54,7 +54,7 @@ export class LectureController {
         return await this.lectureService.update(updateLectureDto, user)
     }
 
-    @Patch('/:id')
+    @Patch('/cancel/:id')
     @ApiOperation({ summary: 'Cancel Lecture' })
     @ApiResponse({ status: 200 })
     @UseGuards(RolesGuard)
@@ -63,7 +63,7 @@ export class LectureController {
         return await this.lectureService.cancel(id);
     }
 
-    @Patch('/:id')
+    @Patch('/attent/:id')
     @ApiOperation({ summary: 'Attend Lecture as a student' })
     @ApiResponse({ status: 200 })
     @UseGuards(RolesGuard)
@@ -73,7 +73,7 @@ export class LectureController {
         return await this.lectureService.attend(id, user);
     }
 
-    @Patch(':/id')
+    @Patch('/abandon/:/id')
     @ApiOperation({ summary: 'Abandon Lecture' })
     @ApiResponse({ status: 200 })
     @UseGuards(RolesGuard)

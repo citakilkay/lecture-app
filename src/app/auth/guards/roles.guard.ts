@@ -12,6 +12,7 @@ export class RolesGuard implements CanActivate {
             context.getHandler(),
             context.getClass()
         ])
+        console.log(requiredRoles, "req")
         if (!requiredRoles) {
             return true;
         }
@@ -20,6 +21,7 @@ export class RolesGuard implements CanActivate {
         if (!user) {
             throw new HttpException('User must be Login', HttpStatus.UNAUTHORIZED)
         }
+        console.log(requiredRoles.some(role => user?.roles.includes(role)))
         return requiredRoles.some(role => user?.roles.includes(role))
     }
 }
